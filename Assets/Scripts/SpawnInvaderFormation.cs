@@ -4,6 +4,7 @@ using TMPro;
 using System.Collections;
 
 public class SpawnInvaderFormation : MonoBehaviour {
+    #region Constants and Types
     public const string HiScoreKey = "HI-SCORE";
     public static SpawnInvaderFormation Instance { get; private set; }
 
@@ -12,7 +13,9 @@ public class SpawnInvaderFormation : MonoBehaviour {
         Plunger = 1,
         Squiggly = 2
     }
+    #endregion
 
+    #region Serialized Fields
     [Header("Parent")]
     [SerializeField] private RectTransform formationParent;
 
@@ -67,12 +70,14 @@ public class SpawnInvaderFormation : MonoBehaviour {
     [SerializeField] private float moveIntervalMax = 0.6f;
 
     [SerializeField] private float moveIntervalMin = 0.08f;
-    [SerializeField] private float horizontalStep = 24f;
-    [SerializeField] private float verticalStep = 28f;
+    [SerializeField] private float horizontalStep = 40f;
+    [SerializeField] private float verticalStep = 44f;
     [SerializeField] private float leftBoundX = -860f;
     [SerializeField] private float rightBoundX = 860f;
     [SerializeField] private bool startMovingRight = true;
+    #endregion
 
+    #region Runtime State
     private RectTransform spawnedPlayerRect;
     private int initialAlienCount;
     private float nextShotTime;
@@ -81,7 +86,9 @@ public class SpawnInvaderFormation : MonoBehaviour {
     private int moveDirection;
     private bool deathSequenceStarted;
     private bool useFrame1OnStep;
+    #endregion
 
+    #region Unity Lifecycle
     private void Awake() {
         Instance = this;
     }
@@ -133,7 +140,9 @@ public class SpawnInvaderFormation : MonoBehaviour {
         MoveAliensOneStep();
         ScheduleNextMove();
     }
+    #endregion
 
+    #region Spawning
     private void Spawn() {
         var parent = formationParent != null ? formationParent : transform as RectTransform;
         if(parent == null) {
@@ -229,7 +238,9 @@ public class SpawnInvaderFormation : MonoBehaviour {
                 break;
         }
     }
+    #endregion
 
+    #region Alien Shooting
     private void TryFireAlienShot() {
         if(AlienBullet.ActiveCount >= maxActiveAlienShots) {
             return;
@@ -361,7 +372,9 @@ public class SpawnInvaderFormation : MonoBehaviour {
         var max = Mathf.Max(min, fireIntervalMax);
         nextShotTime = Time.time + Random.Range(min, max);
     }
+    #endregion
 
+    #region Game Flow
     public void OnPlayerKilled() {
         if(deathSequenceStarted) {
             return;
@@ -422,7 +435,9 @@ public class SpawnInvaderFormation : MonoBehaviour {
         // Event-driven notification hook: tighten movement timing immediately after a kill.
         ScheduleNextMove();
     }
+    #endregion
 
+    #region Alien Movement
     private void ScheduleNextMove() {
         var alive = AlienTarget.Active.Count;
         if(alive <= 0) {
@@ -501,4 +516,5 @@ public class SpawnInvaderFormation : MonoBehaviour {
             image.sprite = useFrame1OnStep && frames.frame1 != null ? frames.frame1 : frames.frame0;
         }
     }
+    #endregion
 }
