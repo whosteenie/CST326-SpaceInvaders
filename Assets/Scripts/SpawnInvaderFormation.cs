@@ -7,10 +7,6 @@ public class SpawnInvaderFormation : MonoBehaviour {
     public const string HiScoreKey = "HI-SCORE";
     public static SpawnInvaderFormation Instance { get; private set; }
 
-    private static readonly int[] ColumnFireTable = {
-        1, 7, 1, 1, 1, 4, 11, 1, 6, 3, 1, 1, 11, 9, 2, 8, 2, 11, 4, 7, 10
-    };
-
     private enum AlienShotType {
         Rolling = 0,
         Plunger = 1,
@@ -82,8 +78,6 @@ public class SpawnInvaderFormation : MonoBehaviour {
     private float nextShotTime;
     private float nextMoveTime;
     private int shotCycleIndex;
-    private int plungerTableIndex;
-    private int squigglyTableIndex = 6;
     private int moveDirection;
     private bool deathSequenceStarted;
     private bool useFrame1OnStep;
@@ -303,14 +297,8 @@ public class SpawnInvaderFormation : MonoBehaviour {
         return shotType switch {
             AlienShotType.Rolling => GetRollingShooter(frontByColumn),
             AlienShotType.Plunger when AlienTarget.Active.Count <= 1 => null,
-            AlienShotType.Plunger => GetTableShooter(frontByColumn, ref plungerTableIndex, 0, 15),
-            _ => GetSquigglyShooter(frontByColumn)
+            _ => GetRandomFrontShooter(frontByColumn)
         };
-    }
-
-    private AlienTarget GetSquigglyShooter(AlienTarget[] frontByColumn) {
-        var shooter = GetTableShooter(frontByColumn, ref squigglyTableIndex, 6, 20);
-        return shooter ? shooter : GetRandomFrontShooter(frontByColumn);
     }
 
     private AlienTarget GetRollingShooter(AlienTarget[] frontByColumn) {
@@ -330,32 +318,6 @@ public class SpawnInvaderFormation : MonoBehaviour {
         }
 
         return best;
-    }
-
-    private static AlienTarget GetTableShooter(AlienTarget[] frontByColumn, ref int tableIndex, int minIndex,
-        int maxIndex) {
-        var attempts = maxIndex - minIndex + 1;
-        for(var i = 0; i < attempts; i++) {
-            var clamped = Mathf.Clamp(tableIndex, minIndex, maxIndex);
-            var oneBasedColumn = ColumnFireTable[clamped];
-            var zeroBasedColumn = oneBasedColumn - 1;
-
-            tableIndex++;
-            if(tableIndex > maxIndex) {
-                tableIndex = minIndex;
-            }
-
-            if(zeroBasedColumn < 0 || zeroBasedColumn >= frontByColumn.Length) {
-                continue;
-            }
-
-            var candidate = frontByColumn[zeroBasedColumn];
-            if(candidate != null) {
-                return candidate;
-            }
-        }
-
-        return null;
     }
 
     private static AlienTarget GetRandomFrontShooter(AlienTarget[] frontByColumn) {
