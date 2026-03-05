@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerBullet : MonoBehaviour
@@ -66,50 +68,37 @@ public class PlayerBullet : MonoBehaviour
         return viewport.y > 1f + (offscreenMargin / Screen.height);
     }
 
-    private bool TryHitShield()
+    private bool TryHitShield() =>
+        TryHitTargets(ShieldTarget.Active, target => target.RectTransform, target => target.Kill());
+
+    private bool TryHitAlien() =>
+        TryHitTargets(AlienTarget.Active, target => target.RectTransform, target => target.Kill());
+
+    private bool TryHitTargets<T>(
+        IReadOnlyList<T> targets,
+        Func<T, RectTransform> getRect,
+        Action<T> onHit)
     {
-        var targets = ShieldTarget.Active;
         for (var i = targets.Count - 1; i >= 0; i--)
         {
             var target = targets[i];
-            if (target == null || target.RectTransform == null)
+            if (target == null)
             {
                 continue;
             }
 
-            if (!Overlaps(target.RectTransform))
+            var targetRect = getRect(target);
+            if (targetRect == null || !Overlaps(targetRect))
             {
                 continue;
             }
 
-            target.Kill();
+            onHit(target);
             Destroy(gameObject);
             return true;
         }
 
         return false;
-    }
-
-    private void TryHitAlien()
-    {
-        var targets = AlienTarget.Active;
-        for (var i = targets.Count - 1; i >= 0; i--)
-        {
-            var target = targets[i];
-            if (target == null || target.RectTransform == null)
-            {
-                continue;
-            }
-
-            if (!Overlaps(target.RectTransform))
-            {
-                continue;
-            }
-
-            target.Kill();
-            Destroy(gameObject);
-            return;
-        }
     }
 
     private bool Overlaps(RectTransform other)
