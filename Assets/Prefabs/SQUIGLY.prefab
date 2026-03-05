@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5030492574767807006}
   - component: {fileID: 4109788605921514656}
   - component: {fileID: -330056386278249208}
+  - component: {fileID: 2907193392587975318}
   m_Layer: 5
   m_Name: SQUIGLY
   m_TagString: Untagged
@@ -95,3 +96,17 @@ MonoBehaviour:
   - {fileID: -1322634756, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
   - {fileID: 2838373, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
   frameRate: 12
+--- !u!114 &2907193392587975318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8210230316438766627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b80c62ebf3c66e4d8542970b60b0a94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AlienBullet
+  speed: 650
+  offscreenMargin: 50

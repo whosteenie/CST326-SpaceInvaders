@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7737085052809903156}
   - component: {fileID: 3149638010074500685}
   - component: {fileID: -7979508748954724560}
+  - component: {fileID: 268673907103748334}
   m_Layer: 5
   m_Name: PLUNGER
   m_TagString: Untagged
@@ -95,3 +96,17 @@ MonoBehaviour:
   - {fileID: 1521903755, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
   - {fileID: 388534348, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
   frameRate: 12
+--- !u!114 &268673907103748334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4532014883527095837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b80c62ebf3c66e4d8542970b60b0a94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AlienBullet
+  speed: 650
+  offscreenMargin: 50

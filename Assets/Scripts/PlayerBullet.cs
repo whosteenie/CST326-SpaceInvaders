@@ -81,6 +81,7 @@ public class PlayerBullet : MonoBehaviour
                 continue;
             }
 
+            target.Kill();
             Destroy(gameObject);
             return true;
         }

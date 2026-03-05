@@ -48,7 +48,7 @@ public class AlienBullet : MonoBehaviour
 
     private void MoveDown()
     {
-        float deltaY = speed * Time.deltaTime;
+        float deltaY = Mathf.Abs(speed) * Time.deltaTime;
 
         if (rectTransform != null)
         {
@@ -93,6 +93,7 @@ public class AlienBullet : MonoBehaviour
                 continue;
             }
 
+            target.Kill();
             Destroy(gameObject);
             return true;
         }

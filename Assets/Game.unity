@@ -316,6 +316,9 @@ MonoBehaviour:
   playerPrefab: {fileID: 518427945593154648, guid: f225e7691288b2a4091877a5db1237c2, type: 3}
   playerStartPosition: {x: 0, y: -430}
   scoreText: {fileID: 1789706383}
+  hiScoreText: {fileID: 725242714}
+  mainMenuSceneName: MainMenu
+  returnToMenuDelay: 3
   shieldPrefab: {fileID: 4869398597454081473, guid: ae2d163bb4178974a880f8e3950847d4, type: 3}
   shieldCount: 4
   shieldsY: -250
@@ -325,10 +328,10 @@ MonoBehaviour:
   columnSpacing: 120
   rowSpacing: 100
   topCenter: {x: 0, y: 360}
-  alienBulletParent: {fileID: 0}
-  plungerBulletPrefab: {fileID: 0}
-  rollBulletPrefab: {fileID: 0}
-  squigglyBulletPrefab: {fileID: 0}
+  alienBulletParent: {fileID: 1665787555}
+  plungerBulletPrefab: {fileID: 3149638010074500685, guid: d6e090e58779d244cbcf2a78180aa1b4, type: 3}
+  rollBulletPrefab: {fileID: 7908541372247438100, guid: 7cf86ba7dad6eb143a1357dd60a0a606, type: 3}
+  squigglyBulletPrefab: {fileID: 4109788605921514656, guid: 90f71addadacaf94d8416bcbe1af16f4, type: 3}
   alienBulletSpawnOffset: {x: 0, y: -35}
   fireIntervalMin: 0.65
   fireIntervalMax: 1.2
