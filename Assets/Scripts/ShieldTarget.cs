@@ -8,14 +8,13 @@ public class ShieldTarget : MonoBehaviour
     [SerializeField] private float destroyDelay = 0f;
 
     private bool isDead;
-    private RectTransform rectTransform;
 
     public static IReadOnlyList<ShieldTarget> Active => ActiveTargets;
-    public RectTransform RectTransform => rectTransform;
+    public RectTransform RectTransform { get; private set; }
 
     private void Awake()
     {
-        rectTransform = transform as RectTransform;
+        RectTransform = transform as RectTransform;
     }
 
     private void OnEnable()

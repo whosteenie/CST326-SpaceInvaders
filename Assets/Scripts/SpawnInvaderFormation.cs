@@ -3,18 +3,15 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
-public class SpawnInvaderFormation : MonoBehaviour
-{
+public class SpawnInvaderFormation : MonoBehaviour {
     public const string HiScoreKey = "HI-SCORE";
     public static SpawnInvaderFormation Instance { get; private set; }
 
-    private static readonly int[] ColumnFireTable = new int[]
-    {
+    private static readonly int[] ColumnFireTable = new int[] {
         1, 7, 1, 1, 1, 4, 11, 1, 6, 3, 1, 1, 11, 9, 2, 8, 2, 11, 4, 7, 10
     };
 
-    private enum AlienShotType
-    {
+    private enum AlienShotType {
         Rolling = 0,
         Plunger = 1,
         Squiggly = 2
@@ -25,16 +22,19 @@ public class SpawnInvaderFormation : MonoBehaviour
 
     [Header("Alien Prefabs (Frame 0)")]
     [SerializeField] private Image squidPrefab;
+
     [SerializeField] private Image crabPrefab;
     [SerializeField] private Image octopusPrefab;
 
     [Header("Alien Frame 1 Sprites")]
     [SerializeField] private Sprite squidFrame1;
+
     [SerializeField] private Sprite crabFrame1;
     [SerializeField] private Sprite octopusFrame1;
 
     [Header("Player")]
     [SerializeField] private Image playerPrefab;
+
     [SerializeField] private Vector2 playerStartPosition = new Vector2(0f, -430f);
     [SerializeField] private TMP_Text scoreText;
     [SerializeField] private TMP_Text hiScoreText;
@@ -43,12 +43,14 @@ public class SpawnInvaderFormation : MonoBehaviour
 
     [Header("Shields")]
     [SerializeField] private Image shieldPrefab;
+
     [SerializeField] private int shieldCount = 4;
     [SerializeField] private float shieldsY = -250f;
     [SerializeField] private float shieldsSpreadWidth = 900f;
 
     [Header("Layout (1920x1080 baseline)")]
     [SerializeField] private int columns = 11;
+
     [SerializeField] private int rows = 5;
     [SerializeField] private float columnSpacing = 120f;
     [SerializeField] private float rowSpacing = 100f;
@@ -56,6 +58,7 @@ public class SpawnInvaderFormation : MonoBehaviour
 
     [Header("Alien Shooting")]
     [SerializeField] private RectTransform alienBulletParent;
+
     [SerializeField] private Image plungerBulletPrefab;
     [SerializeField] private Image rollBulletPrefab;
     [SerializeField] private Image squigglyBulletPrefab;
@@ -64,54 +67,74 @@ public class SpawnInvaderFormation : MonoBehaviour
     [SerializeField] private float fireIntervalMax = 1.2f;
     [SerializeField] private int maxActiveAlienShots = 1;
 
+    [Header("Alien Movement")]
+    [SerializeField] private float moveIntervalMax = 0.6f;
+
+    [SerializeField] private float moveIntervalMin = 0.08f;
+    [SerializeField] private float horizontalStep = 24f;
+    [SerializeField] private float verticalStep = 28f;
+    [SerializeField] private float leftBoundX = -860f;
+    [SerializeField] private float rightBoundX = 860f;
+    [SerializeField] private bool startMovingRight = true;
+
     private RectTransform spawnedPlayerRect;
+    private int initialAlienCount;
     private float nextShotTime;
+    private float nextMoveTime;
     private int shotCycleIndex;
     private int plungerTableIndex;
     private int squigglyTableIndex = 6;
+    private int moveDirection;
     private bool deathSequenceStarted;
+    private bool useFrame1OnStep;
 
-    private void Awake()
-    {
+    private void Awake() {
         Instance = this;
     }
 
-    private void OnDestroy()
-    {
-        if (Instance == this)
-        {
+    private void OnDestroy() {
+        if(Instance == this) {
             Instance = null;
         }
     }
 
-    private void Start()
-    {
+    private void Start() {
         Spawn();
         UpdateHiScoreText();
+        moveDirection = startMovingRight ? 1 : -1;
+        ScheduleNextMove();
         ScheduleNextShot();
     }
 
-    private void Update()
-    {
-        if (deathSequenceStarted)
-        {
+    private void Update() {
+        if(deathSequenceStarted) {
             return;
         }
 
-        if (Time.time < nextShotTime)
-        {
+        if(initialAlienCount > 0 && AlienTarget.Active.Count == 0) {
+            OnAllAliensCleared();
+            return;
+        }
+
+        if(Time.time < nextShotTime) {
+            if(!(Time.time >= nextMoveTime)) return;
+            MoveAliensOneStep();
+            ScheduleNextMove();
+
             return;
         }
 
         TryFireAlienShot();
         ScheduleNextShot();
+
+        if(!(Time.time >= nextMoveTime)) return;
+        MoveAliensOneStep();
+        ScheduleNextMove();
     }
 
-    private void Spawn()
-    {
-        RectTransform parent = formationParent != null ? formationParent : transform as RectTransform;
-        if (parent == null)
-        {
+    private void Spawn() {
+        var parent = formationParent != null ? formationParent : transform as RectTransform;
+        if(parent == null) {
             Debug.LogError("SpawnInvaderFormation needs a RectTransform parent.");
             return;
         }
@@ -119,33 +142,29 @@ public class SpawnInvaderFormation : MonoBehaviour
         SpawnPlayer(parent);
         SpawnShields(parent);
 
-        float totalWidth = (columns - 1) * columnSpacing;
-        float leftX = -totalWidth * 0.5f;
+        var totalWidth = (columns - 1) * columnSpacing;
+        var leftX = -totalWidth * 0.5f;
 
-        for (int row = 0; row < rows; row++)
-        {
-            GetAlienForRow(row, out Image prefab, out Sprite frame1);
-            if (prefab == null)
-            {
+        for(var row = 0; row < rows; row++) {
+            GetAlienForRow(row, out var prefab, out var frame1);
+            if(prefab == null) {
                 continue;
             }
 
-            for (int col = 0; col < columns; col++)
-            {
-                Image alien = Instantiate(prefab, parent);
-                RectTransform alienRect = alien.rectTransform;
-                alienRect.anchoredPosition = new Vector2(leftX + (col * columnSpacing), topCenter.y - (row * rowSpacing));
+            for(var col = 0; col < columns; col++) {
+                var alien = Instantiate(prefab, parent);
+                var alienRect = alien.rectTransform;
+                alienRect.anchoredPosition =
+                    new Vector2(leftX + (col * columnSpacing), topCenter.y - (row * rowSpacing));
 
-                AlienFrames frames = alien.GetComponent<AlienFrames>();
-                if (frames == null)
-                {
+                var frames = alien.GetComponent<AlienFrames>();
+                if(frames == null) {
                     Debug.LogError("Spawned alien prefab is missing AlienFrames component.");
                     continue;
                 }
 
-                AlienTarget target = alien.GetComponent<AlienTarget>();
-                if (target == null)
-                {
+                var target = alien.GetComponent<AlienTarget>();
+                if(target == null) {
                     Debug.LogError("Spawned alien prefab is missing AlienTarget component.");
                     continue;
                 }
@@ -155,22 +174,21 @@ public class SpawnInvaderFormation : MonoBehaviour
                 target.SetColumnIndex(col);
             }
         }
+
+        initialAlienCount = AlienTarget.Active.Count;
     }
 
-    private void SpawnPlayer(RectTransform parent)
-    {
-        if (playerPrefab == null)
-        {
+    private void SpawnPlayer(RectTransform parent) {
+        if(playerPrefab == null) {
             return;
         }
 
-        Image player = Instantiate(playerPrefab, parent);
+        var player = Instantiate(playerPrefab, parent);
         player.rectTransform.anchoredPosition = playerStartPosition;
         spawnedPlayerRect = player.rectTransform;
 
-        PlayerController controller = player.GetComponent<PlayerController>();
-        if (controller == null)
-        {
+        var controller = player.GetComponent<PlayerController>();
+        if(controller == null) {
             Debug.LogError("Player prefab is missing PlayerController component.");
             return;
         }
@@ -179,100 +197,84 @@ public class SpawnInvaderFormation : MonoBehaviour
         controller.ResetScore();
     }
 
-    private void SpawnShields(RectTransform parent)
-    {
-        if (shieldPrefab == null || shieldCount <= 0)
-        {
+    private void SpawnShields(RectTransform parent) {
+        if(shieldPrefab == null || shieldCount <= 0) {
             return;
         }
 
-        float startX = -shieldsSpreadWidth * 0.5f;
-        float step = shieldCount > 1 ? shieldsSpreadWidth / (shieldCount - 1) : 0f;
+        var startX = -shieldsSpreadWidth * 0.5f;
+        var step = shieldCount > 1 ? shieldsSpreadWidth / (shieldCount - 1) : 0f;
 
-        for (int i = 0; i < shieldCount; i++)
-        {
-            Image shield = Instantiate(shieldPrefab, parent);
+        for(var i = 0; i < shieldCount; i++) {
+            var shield = Instantiate(shieldPrefab, parent);
             shield.rectTransform.anchoredPosition = new Vector2(startX + (i * step), shieldsY);
         }
     }
 
-    private void GetAlienForRow(int row, out Image prefab, out Sprite frame1)
-    {
-        if (row == 0)
-        {
-            prefab = squidPrefab;
-            frame1 = squidFrame1;
-            return;
+    private void GetAlienForRow(int row, out Image prefab, out Sprite frame1) {
+        switch(row) {
+            case 0:
+                prefab = squidPrefab;
+                frame1 = squidFrame1;
+                return;
+            case <= 2:
+                prefab = crabPrefab;
+                frame1 = crabFrame1;
+                return;
+            default:
+                prefab = octopusPrefab;
+                frame1 = octopusFrame1;
+                break;
         }
-
-        if (row <= 2)
-        {
-            prefab = crabPrefab;
-            frame1 = crabFrame1;
-            return;
-        }
-
-        prefab = octopusPrefab;
-        frame1 = octopusFrame1;
     }
 
-    private void TryFireAlienShot()
-    {
-        if (AlienBullet.ActiveCount >= maxActiveAlienShots)
-        {
+    private void TryFireAlienShot() {
+        if(AlienBullet.ActiveCount >= maxActiveAlienShots) {
             return;
         }
 
         var frontByColumn = GetFrontAliensByColumn();
-        AlienShotType shotType = (AlienShotType)(shotCycleIndex % 3);
+        var shotType = (AlienShotType)(shotCycleIndex % 3);
         shotCycleIndex++;
 
-        AlienTarget shooter = GetShooterForType(shotType, frontByColumn);
-        if (shooter == null)
-        {
+        var shooter = GetShooterForType(shotType, frontByColumn);
+        if(shooter == null) {
             return;
         }
 
-        Image bulletPrefab = GetBulletPrefabForType(shotType);
-        if (bulletPrefab == null)
-        {
+        var bulletPrefab = GetBulletPrefabForType(shotType);
+        if(bulletPrefab == null) {
             return;
         }
 
-        RectTransform parent = alienBulletParent != null
+        var parent = alienBulletParent != null
             ? alienBulletParent
             : (formationParent != null ? formationParent : transform as RectTransform);
-        if (parent == null)
-        {
+        if(parent == null) {
             return;
         }
 
-        Image bullet = Instantiate(bulletPrefab, parent);
-        RectTransform bulletRect = bullet.rectTransform;
+        var bullet = Instantiate(bulletPrefab, parent);
+        var bulletRect = bullet.rectTransform;
         bulletRect.anchoredPosition = shooter.RectTransform.anchoredPosition + alienBulletSpawnOffset;
     }
 
-    private AlienTarget[] GetFrontAliensByColumn()
-    {
-        AlienTarget[] frontByColumn = new AlienTarget[columns];
+    private AlienTarget[] GetFrontAliensByColumn() {
+        var frontByColumn = new AlienTarget[columns];
         var active = AlienTarget.Active;
-        for (int i = 0; i < active.Count; i++)
-        {
-            AlienTarget candidate = active[i];
-            if (candidate == null || candidate.RectTransform == null)
-            {
+        foreach(var candidate in active) {
+            if(candidate == null || candidate.RectTransform == null) {
                 continue;
             }
 
-            int col = candidate.ColumnIndex;
-            if (col < 0 || col >= columns)
-            {
+            var col = candidate.ColumnIndex;
+            if(col < 0 || col >= columns) {
                 continue;
             }
 
-            AlienTarget current = frontByColumn[col];
-            if (current == null || candidate.RectTransform.anchoredPosition.y < current.RectTransform.anchoredPosition.y)
-            {
+            var current = frontByColumn[col];
+            if(current == null ||
+               candidate.RectTransform.anchoredPosition.y < current.RectTransform.anchoredPosition.y) {
                 frontByColumn[col] = candidate;
             }
         }
@@ -280,79 +282,57 @@ public class SpawnInvaderFormation : MonoBehaviour
         return frontByColumn;
     }
 
-    private AlienTarget GetShooterForType(AlienShotType shotType, AlienTarget[] frontByColumn)
-    {
-        if (frontByColumn == null || frontByColumn.Length == 0)
-        {
+    private AlienTarget GetShooterForType(AlienShotType shotType, AlienTarget[] frontByColumn) {
+        if(frontByColumn == null || frontByColumn.Length == 0) {
             return null;
         }
 
-        if (shotType == AlienShotType.Rolling)
-        {
-            return GetRollingShooter(frontByColumn);
-        }
-
-        if (shotType == AlienShotType.Plunger)
-        {
-            if (AlienTarget.Active.Count <= 1)
-            {
-                return null;
-            }
-
-            return GetTableShooter(frontByColumn, ref plungerTableIndex, 0, 15);
-        }
-
-        return GetTableShooter(frontByColumn, ref squigglyTableIndex, 6, 20);
+        return shotType switch {
+            AlienShotType.Rolling => GetRollingShooter(frontByColumn),
+            AlienShotType.Plunger when AlienTarget.Active.Count <= 1 => null,
+            AlienShotType.Plunger => GetTableShooter(frontByColumn, ref plungerTableIndex, 0, 15),
+            _ => GetTableShooter(frontByColumn, ref squigglyTableIndex, 6, 20)
+        };
     }
 
-    private AlienTarget GetRollingShooter(AlienTarget[] frontByColumn)
-    {
-        float playerX = spawnedPlayerRect != null ? spawnedPlayerRect.anchoredPosition.x : 0f;
+    private AlienTarget GetRollingShooter(AlienTarget[] frontByColumn) {
+        var playerX = spawnedPlayerRect != null ? spawnedPlayerRect.anchoredPosition.x : 0f;
         AlienTarget best = null;
-        float bestDistance = float.MaxValue;
+        var bestDistance = float.MaxValue;
 
-        for (int col = 0; col < frontByColumn.Length; col++)
-        {
-            AlienTarget candidate = frontByColumn[col];
-            if (candidate == null || candidate.RectTransform == null)
-            {
+        foreach(var candidate in frontByColumn) {
+            if(candidate == null || candidate.RectTransform == null) {
                 continue;
             }
 
-            float distance = Mathf.Abs(candidate.RectTransform.anchoredPosition.x - playerX);
-            if (distance < bestDistance)
-            {
-                best = candidate;
-                bestDistance = distance;
-            }
+            var distance = Mathf.Abs(candidate.RectTransform.anchoredPosition.x - playerX);
+            if(!(distance < bestDistance)) continue;
+            best = candidate;
+            bestDistance = distance;
         }
 
         return best;
     }
 
-    private AlienTarget GetTableShooter(AlienTarget[] frontByColumn, ref int tableIndex, int minIndex, int maxIndex)
-    {
-        int attempts = maxIndex - minIndex + 1;
-        for (int i = 0; i < attempts; i++)
-        {
-            int clamped = Mathf.Clamp(tableIndex, minIndex, maxIndex);
-            int oneBasedColumn = ColumnFireTable[clamped];
-            int zeroBasedColumn = oneBasedColumn - 1;
+    private static AlienTarget GetTableShooter(AlienTarget[] frontByColumn, ref int tableIndex, int minIndex,
+        int maxIndex) {
+        var attempts = maxIndex - minIndex + 1;
+        for(var i = 0; i < attempts; i++) {
+            var clamped = Mathf.Clamp(tableIndex, minIndex, maxIndex);
+            var oneBasedColumn = ColumnFireTable[clamped];
+            var zeroBasedColumn = oneBasedColumn - 1;
 
             tableIndex++;
-            if (tableIndex > maxIndex)
-            {
+            if(tableIndex > maxIndex) {
                 tableIndex = minIndex;
             }
 
-            if (zeroBasedColumn < 0 || zeroBasedColumn >= frontByColumn.Length)
-            {
+            if(zeroBasedColumn < 0 || zeroBasedColumn >= frontByColumn.Length) {
                 continue;
             }
 
-            AlienTarget candidate = frontByColumn[zeroBasedColumn];
-            if (candidate != null)
-            {
+            var candidate = frontByColumn[zeroBasedColumn];
+            if(candidate != null) {
                 return candidate;
             }
         }
@@ -360,59 +340,45 @@ public class SpawnInvaderFormation : MonoBehaviour
         return null;
     }
 
-    private Image GetBulletPrefabForType(AlienShotType shotType)
-    {
-        if (shotType == AlienShotType.Rolling)
-        {
-            return rollBulletPrefab;
-        }
-
-        if (shotType == AlienShotType.Plunger)
-        {
-            return plungerBulletPrefab;
-        }
-
-        return squigglyBulletPrefab;
+    private Image GetBulletPrefabForType(AlienShotType shotType) {
+        return shotType switch {
+            AlienShotType.Rolling => rollBulletPrefab,
+            AlienShotType.Plunger => plungerBulletPrefab,
+            _ => squigglyBulletPrefab
+        };
     }
 
-    private void ScheduleNextShot()
-    {
-        float min = Mathf.Max(0.05f, fireIntervalMin);
-        float max = Mathf.Max(min, fireIntervalMax);
+    private void ScheduleNextShot() {
+        var min = Mathf.Max(0.05f, fireIntervalMin);
+        var max = Mathf.Max(min, fireIntervalMax);
         nextShotTime = Time.time + Random.Range(min, max);
     }
 
-    public void OnPlayerKilled()
-    {
-        if (deathSequenceStarted)
-        {
+    public void OnPlayerKilled() {
+        if(deathSequenceStarted) {
             return;
         }
 
         deathSequenceStarted = true;
 
-        int finalScore = PlayerController.Instance != null ? PlayerController.Instance.CurrentScore : 0;
+        var finalScore = PlayerController.Instance != null ? PlayerController.Instance.CurrentScore : 0;
         SaveHiScore(finalScore);
         UpdateHiScoreText();
 
-        if (PlayerController.Instance != null)
-        {
+        if(PlayerController.Instance != null) {
             Destroy(PlayerController.Instance.gameObject);
         }
 
         StartCoroutine(ReturnToMainMenuAfterDelay());
     }
 
-    private static int GetHiScore()
-    {
+    private static int GetHiScore() {
         return PlayerPrefs.GetInt(HiScoreKey, 0);
     }
 
-    private static void SaveHiScore(int score)
-    {
-        int current = GetHiScore();
-        if (score <= current)
-        {
+    private static void SaveHiScore(int score) {
+        var current = GetHiScore();
+        if(score <= current) {
             return;
         }
 
@@ -420,19 +386,106 @@ public class SpawnInvaderFormation : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    private void UpdateHiScoreText()
-    {
-        if (hiScoreText == null)
-        {
+    private void UpdateHiScoreText() {
+        if(hiScoreText == null) {
             return;
         }
 
         hiScoreText.text = GetHiScore().ToString("D4");
     }
 
-    private IEnumerator ReturnToMainMenuAfterDelay()
-    {
+    private IEnumerator ReturnToMainMenuAfterDelay() {
         yield return new WaitForSeconds(returnToMenuDelay);
         UnityEngine.SceneManagement.SceneManager.LoadScene(mainMenuSceneName);
+    }
+
+    private void OnAllAliensCleared() {
+        if(deathSequenceStarted) {
+            return;
+        }
+
+        deathSequenceStarted = true;
+        SaveHiScore(PlayerController.Instance != null ? PlayerController.Instance.CurrentScore : 0);
+        UpdateHiScoreText();
+        StartCoroutine(ReturnToMainMenuAfterDelay());
+    }
+
+    private void ScheduleNextMove() {
+        var alive = AlienTarget.Active.Count;
+        if(alive <= 0) {
+            nextMoveTime = Time.time + moveIntervalMax;
+            return;
+        }
+
+        var max = Mathf.Max(0.05f, moveIntervalMax);
+        var min = Mathf.Clamp(moveIntervalMin, 0.02f, max);
+        var ratio = initialAlienCount > 0 ? (float)alive / initialAlienCount : 1f;
+        var interval = Mathf.Lerp(min, max, Mathf.Clamp01(ratio));
+        nextMoveTime = Time.time + interval;
+    }
+
+    private void MoveAliensOneStep() {
+        var active = AlienTarget.Active;
+        if(active.Count == 0) {
+            return;
+        }
+
+        var horizontalDelta = moveDirection * Mathf.Abs(horizontalStep);
+        var hitEdge = false;
+
+        foreach(var alien in active) {
+            if(alien == null || alien.RectTransform == null) {
+                continue;
+            }
+
+            var nextX = alien.RectTransform.anchoredPosition.x + horizontalDelta;
+            if(!(nextX < leftBoundX) && !(nextX > rightBoundX)) continue;
+            hitEdge = true;
+            break;
+        }
+
+        if(hitEdge) {
+            foreach(var alien in active) {
+                if(alien == null || alien.RectTransform == null) {
+                    continue;
+                }
+
+                var pos = alien.RectTransform.anchoredPosition;
+                pos.y -= Mathf.Abs(verticalStep);
+                alien.RectTransform.anchoredPosition = pos;
+            }
+
+            moveDirection *= -1;
+        } else {
+            foreach(var alien in active) {
+                if(alien == null || alien.RectTransform == null) {
+                    continue;
+                }
+
+                var pos = alien.RectTransform.anchoredPosition;
+                pos.x += horizontalDelta;
+                alien.RectTransform.anchoredPosition = pos;
+            }
+        }
+
+        ToggleAlienFrames();
+    }
+
+    private void ToggleAlienFrames() {
+        useFrame1OnStep = !useFrame1OnStep;
+        var active = AlienTarget.Active;
+        foreach(var alien in active) {
+            if(alien == null) {
+                continue;
+            }
+
+            var frames = alien.GetComponent<AlienFrames>();
+            var image = alien.GetComponent<Image>();
+            if(frames == null || image == null) {
+                continue;
+            }
+
+            image.sprite = useFrame1OnStep && frames.frame1 != null ? frames.frame1 : frames.frame0;
+        }
     }
 }

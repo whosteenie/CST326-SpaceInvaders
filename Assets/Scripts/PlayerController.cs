@@ -5,8 +5,9 @@ using TMPro;
 public class PlayerController : MonoBehaviour
 {
     public static PlayerController Instance { get; private set; }
-    public RectTransform RectTransform => rectTransform;
-    public int CurrentScore => score;
+    public RectTransform RectTransform { get; private set; }
+
+    public int CurrentScore { get; private set; }
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 700f;
@@ -21,14 +22,12 @@ public class PlayerController : MonoBehaviour
     [Header("Score")]
     [SerializeField] private TMP_Text scoreText;
 
-    private RectTransform rectTransform;
     private float nextFireTime;
-    private int score;
 
     private void Awake()
     {
         Instance = this;
-        rectTransform = transform as RectTransform;
+        RectTransform = transform as RectTransform;
         UpdateScoreText();
     }
 
@@ -42,7 +41,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        Keyboard keyboard = Keyboard.current;
+        var keyboard = Keyboard.current;
         if (keyboard == null)
         {
             return;
@@ -58,7 +57,7 @@ public class PlayerController : MonoBehaviour
 
     private void Move(Keyboard keyboard)
     {
-        float direction = 0f;
+        var direction = 0f;
 
         if (keyboard.aKey.isPressed)
         {
@@ -75,17 +74,17 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        float deltaX = direction * moveSpeed * Time.deltaTime;
+        var deltaX = direction * moveSpeed * Time.deltaTime;
 
-        if (rectTransform != null)
+        if (RectTransform != null)
         {
-            Vector2 pos = rectTransform.anchoredPosition;
+            var pos = RectTransform.anchoredPosition;
             pos.x = Mathf.Clamp(pos.x + deltaX, minX, maxX);
-            rectTransform.anchoredPosition = pos;
+            RectTransform.anchoredPosition = pos;
             return;
         }
 
-        Vector3 pos3 = transform.position;
+        var pos3 = transform.position;
         pos3.x = Mathf.Clamp(pos3.x + deltaX, minX, maxX);
         transform.position = pos3;
     }
@@ -99,13 +98,13 @@ public class PlayerController : MonoBehaviour
 
         nextFireTime = Time.time + fireCooldown;
 
-        Transform parent = transform.parent;
-        GameObject bullet = Instantiate(playerBulletPrefab, parent);
+        var parent = transform.parent;
+        var bullet = Instantiate(playerBulletPrefab, parent);
 
-        RectTransform bulletRect = bullet.transform as RectTransform;
-        if (bulletRect != null && rectTransform != null)
+        var bulletRect = bullet.transform as RectTransform;
+        if (bulletRect != null && RectTransform != null)
         {
-            bulletRect.anchoredPosition = rectTransform.anchoredPosition + bulletSpawnOffset;
+            bulletRect.anchoredPosition = RectTransform.anchoredPosition + bulletSpawnOffset;
             return;
         }
 
@@ -119,13 +118,13 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        score += points;
+        CurrentScore += points;
         UpdateScoreText();
     }
 
     public void ResetScore()
     {
-        score = 0;
+        CurrentScore = 0;
         UpdateScoreText();
     }
 
@@ -142,6 +141,6 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        scoreText.text = score.ToString("D4");
+        scoreText.text = CurrentScore.ToString("D4");
     }
 }

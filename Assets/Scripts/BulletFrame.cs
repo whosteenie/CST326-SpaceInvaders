@@ -27,13 +27,13 @@ public class BulletFrame : MonoBehaviour
 
     private void Update()
     {
-        if (frames == null || frames.Length <= 1 || targetImage == null || frameRate <= 0f)
+        if (frames is not { Length: > 1 } || targetImage == null || frameRate <= 0f)
         {
             return;
         }
 
         frameTimer += Time.deltaTime;
-        float frameDuration = 1f / frameRate;
+        var frameDuration = 1f / frameRate;
         if (frameTimer < frameDuration)
         {
             return;

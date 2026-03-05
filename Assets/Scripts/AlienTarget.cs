@@ -10,15 +10,15 @@ public class AlienTarget : MonoBehaviour
     [SerializeField] private int columnIndex = -1;
 
     private bool isDead;
-    private RectTransform rectTransform;
 
     public static IReadOnlyList<AlienTarget> Active => ActiveTargets;
-    public RectTransform RectTransform => rectTransform;
+    public RectTransform RectTransform { get; private set; }
+
     public int ColumnIndex => columnIndex;
 
     private void Awake()
     {
-        rectTransform = transform as RectTransform;
+        RectTransform = transform as RectTransform;
     }
 
     private void OnEnable()
@@ -47,7 +47,6 @@ public class AlienTarget : MonoBehaviour
             PlayerController.Instance.AddScore(scoreValue);
         }
 
-        // Hook point for future death animation/sfx before destroy.
         if (destroyDelay <= 0f)
         {
             Destroy(gameObject);

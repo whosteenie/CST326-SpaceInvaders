@@ -25,11 +25,9 @@ public class LoadGameSceneAfterDelay : MonoBehaviour
         }
 
         elapsed += Time.deltaTime;
-        if (elapsed >= delaySeconds || WasClickPressedThisFrame())
-        {
-            hasLoaded = true;
-            SceneManager.LoadScene(sceneName);
-        }
+        if(!(elapsed >= delaySeconds) && !WasClickPressedThisFrame()) return;
+        hasLoaded = true;
+        SceneManager.LoadScene(sceneName);
     }
 
     private static bool WasClickPressedThisFrame()
@@ -46,7 +44,7 @@ public class LoadGameSceneAfterDelay : MonoBehaviour
             return;
         }
 
-        int hiScore = PlayerPrefs.GetInt(SpawnInvaderFormation.HiScoreKey, 0);
+        var hiScore = PlayerPrefs.GetInt(SpawnInvaderFormation.HiScoreKey, 0);
         hiScoreText.text = hiScore.ToString("D4");
     }
 }

@@ -12,8 +12,9 @@ public class PlayerBullet : MonoBehaviour
 
     private void Awake()
     {
-        rectTransform = transform as RectTransform;
-        parentRect = transform.parent as RectTransform;
+        var tr = transform;
+        rectTransform = tr as RectTransform;
+        parentRect = tr.parent as RectTransform;
     }
 
     private void Update()
@@ -36,11 +37,11 @@ public class PlayerBullet : MonoBehaviour
 
     private void MoveUp()
     {
-        float deltaY = speed * Time.deltaTime;
+        var deltaY = speed * Time.deltaTime;
 
         if (rectTransform != null)
         {
-            Vector2 pos = rectTransform.anchoredPosition;
+            var pos = rectTransform.anchoredPosition;
             pos.y += deltaY;
             rectTransform.anchoredPosition = pos;
             return;
@@ -61,16 +62,16 @@ public class PlayerBullet : MonoBehaviour
             return false;
         }
 
-        Vector3 viewport = Camera.main.WorldToViewportPoint(transform.position);
+        var viewport = Camera.main.WorldToViewportPoint(transform.position);
         return viewport.y > 1f + (offscreenMargin / Screen.height);
     }
 
     private bool TryHitShield()
     {
         var targets = ShieldTarget.Active;
-        for (int i = targets.Count - 1; i >= 0; i--)
+        for (var i = targets.Count - 1; i >= 0; i--)
         {
-            ShieldTarget target = targets[i];
+            var target = targets[i];
             if (target == null || target.RectTransform == null)
             {
                 continue;
@@ -92,9 +93,9 @@ public class PlayerBullet : MonoBehaviour
     private void TryHitAlien()
     {
         var targets = AlienTarget.Active;
-        for (int i = targets.Count - 1; i >= 0; i--)
+        for (var i = targets.Count - 1; i >= 0; i--)
         {
-            AlienTarget target = targets[i];
+            var target = targets[i];
             if (target == null || target.RectTransform == null)
             {
                 continue;
@@ -121,15 +122,15 @@ public class PlayerBullet : MonoBehaviour
         rectTransform.GetWorldCorners(cornersA);
         other.GetWorldCorners(cornersB);
 
-        float aMinX = cornersA[0].x;
-        float aMinY = cornersA[0].y;
-        float aMaxX = cornersA[2].x;
-        float aMaxY = cornersA[2].y;
+        var aMinX = cornersA[0].x;
+        var aMinY = cornersA[0].y;
+        var aMaxX = cornersA[2].x;
+        var aMaxY = cornersA[2].y;
 
-        float bMinX = cornersB[0].x;
-        float bMinY = cornersB[0].y;
-        float bMaxX = cornersB[2].x;
-        float bMaxY = cornersB[2].y;
+        var bMinX = cornersB[0].x;
+        var bMinY = cornersB[0].y;
+        var bMaxX = cornersB[2].x;
+        var bMaxY = cornersB[2].y;
 
         return aMinX < bMaxX && aMaxX > bMinX && aMinY < bMaxY && aMaxY > bMinY;
     }
