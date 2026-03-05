@@ -7,7 +7,7 @@ public class SpawnInvaderFormation : MonoBehaviour {
     public const string HiScoreKey = "HI-SCORE";
     public static SpawnInvaderFormation Instance { get; private set; }
 
-    private static readonly int[] ColumnFireTable = new int[] {
+    private static readonly int[] ColumnFireTable = {
         1, 7, 1, 1, 1, 4, 11, 1, 6, 3, 1, 1, 11, 9, 2, 8, 2, 11, 4, 7, 10
     };
 
@@ -35,7 +35,7 @@ public class SpawnInvaderFormation : MonoBehaviour {
     [Header("Player")]
     [SerializeField] private Image playerPrefab;
 
-    [SerializeField] private Vector2 playerStartPosition = new Vector2(0f, -430f);
+    [SerializeField] private Vector2 playerStartPosition = new(0f, -430f);
     [SerializeField] private TMP_Text scoreText;
     [SerializeField] private TMP_Text hiScoreText;
     [SerializeField] private string mainMenuSceneName = "MainMenu";
@@ -54,7 +54,7 @@ public class SpawnInvaderFormation : MonoBehaviour {
     [SerializeField] private int rows = 5;
     [SerializeField] private float columnSpacing = 120f;
     [SerializeField] private float rowSpacing = 100f;
-    [SerializeField] private Vector2 topCenter = new Vector2(0f, 360f);
+    [SerializeField] private Vector2 topCenter = new(0f, 360f);
 
     [Header("Alien Shooting")]
     [SerializeField] private RectTransform alienBulletParent;
@@ -62,7 +62,7 @@ public class SpawnInvaderFormation : MonoBehaviour {
     [SerializeField] private Image plungerBulletPrefab;
     [SerializeField] private Image rollBulletPrefab;
     [SerializeField] private Image squigglyBulletPrefab;
-    [SerializeField] private Vector2 alienBulletSpawnOffset = new Vector2(0f, -35f);
+    [SerializeField] private Vector2 alienBulletSpawnOffset = new(0f, -35f);
     [SerializeField] private float fireIntervalMin = 0.65f;
     [SerializeField] private float fireIntervalMax = 1.2f;
     [SerializeField] private int maxActiveAlienShots = 1;
@@ -90,6 +90,14 @@ public class SpawnInvaderFormation : MonoBehaviour {
 
     private void Awake() {
         Instance = this;
+    }
+
+    private void OnEnable() {
+        AlienTarget.Killed += HandleAlienKilled;
+    }
+
+    private void OnDisable() {
+        AlienTarget.Killed -= HandleAlienKilled;
     }
 
     private void OnDestroy() {
@@ -234,16 +242,21 @@ public class SpawnInvaderFormation : MonoBehaviour {
         }
 
         var frontByColumn = GetFrontAliensByColumn();
-        var shotType = (AlienShotType)(shotCycleIndex % 3);
-        shotCycleIndex++;
+        AlienTarget shooter = null;
+        Image bulletPrefab = null;
 
-        var shooter = GetShooterForType(shotType, frontByColumn);
-        if(shooter == null) {
-            return;
+        for(var attempt = 0; attempt < 3; attempt++) {
+            var shotType = (AlienShotType)(shotCycleIndex % 3);
+            shotCycleIndex++;
+
+            shooter = GetShooterForType(shotType, frontByColumn);
+            bulletPrefab = GetBulletPrefabForType(shotType);
+            if(shooter != null && bulletPrefab != null) {
+                break;
+            }
         }
 
-        var bulletPrefab = GetBulletPrefabForType(shotType);
-        if(bulletPrefab == null) {
+        if(shooter == null || bulletPrefab == null) {
             return;
         }
 
@@ -291,8 +304,13 @@ public class SpawnInvaderFormation : MonoBehaviour {
             AlienShotType.Rolling => GetRollingShooter(frontByColumn),
             AlienShotType.Plunger when AlienTarget.Active.Count <= 1 => null,
             AlienShotType.Plunger => GetTableShooter(frontByColumn, ref plungerTableIndex, 0, 15),
-            _ => GetTableShooter(frontByColumn, ref squigglyTableIndex, 6, 20)
+            _ => GetSquigglyShooter(frontByColumn)
         };
+    }
+
+    private AlienTarget GetSquigglyShooter(AlienTarget[] frontByColumn) {
+        var shooter = GetTableShooter(frontByColumn, ref squigglyTableIndex, 6, 20);
+        return shooter ? shooter : GetRandomFrontShooter(frontByColumn);
     }
 
     private AlienTarget GetRollingShooter(AlienTarget[] frontByColumn) {
@@ -335,6 +353,34 @@ public class SpawnInvaderFormation : MonoBehaviour {
             if(candidate != null) {
                 return candidate;
             }
+        }
+
+        return null;
+    }
+
+    private static AlienTarget GetRandomFrontShooter(AlienTarget[] frontByColumn) {
+        var count = 0;
+        foreach(var alien in frontByColumn) {
+            if(alien != null) {
+                count++;
+            }
+        }
+
+        if(count == 0) {
+            return null;
+        }
+
+        var pick = Random.Range(0, count);
+        foreach(var alien in frontByColumn) {
+            if(alien == null) {
+                continue;
+            }
+
+            if(pick == 0) {
+                return alien;
+            }
+
+            pick--;
         }
 
         return null;
@@ -408,6 +454,11 @@ public class SpawnInvaderFormation : MonoBehaviour {
         SaveHiScore(PlayerController.Instance != null ? PlayerController.Instance.CurrentScore : 0);
         UpdateHiScoreText();
         StartCoroutine(ReturnToMainMenuAfterDelay());
+    }
+
+    private void HandleAlienKilled(AlienTarget _) {
+        // Event-driven notification hook: tighten movement timing immediately after a kill.
+        ScheduleNextMove();
     }
 
     private void ScheduleNextMove() {

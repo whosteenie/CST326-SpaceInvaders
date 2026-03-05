@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class AlienTarget : MonoBehaviour
 {
-    private static readonly List<AlienTarget> ActiveTargets = new List<AlienTarget>();
+    private static readonly List<AlienTarget> ActiveTargets = new();
+    public static event Action<AlienTarget> Killed;
 
     [SerializeField] private int scoreValue = 10;
-    [SerializeField] private float destroyDelay = 0f;
+    [SerializeField] private float destroyDelay;
     [SerializeField] private int columnIndex = -1;
 
     private bool isDead;
@@ -46,6 +48,8 @@ public class AlienTarget : MonoBehaviour
         {
             PlayerController.Instance.AddScore(scoreValue);
         }
+
+        Killed?.Invoke(this);
 
         if (destroyDelay <= 0f)
         {
