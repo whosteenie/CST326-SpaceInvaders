@@ -40,6 +40,10 @@ public class SpawnInvaderFormation : MonoBehaviour {
     [SerializeField] private string mainMenuSceneName = "MainMenu";
     [SerializeField] private float returnToMenuDelay = 3f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip backgroundMusic;
+    [SerializeField] [Range(0f, 1f)] private float backgroundMusicVolume = 1f;
+
     [Header("Shields")]
     [SerializeField] private Image shieldPrefab;
 
@@ -86,6 +90,7 @@ public class SpawnInvaderFormation : MonoBehaviour {
     private int moveDirection;
     private bool deathSequenceStarted;
     private bool useFrame1OnStep;
+    private AudioSource musicSource;
     #endregion
 
     #region Unity Lifecycle
@@ -108,6 +113,7 @@ public class SpawnInvaderFormation : MonoBehaviour {
     }
 
     private void Start() {
+        PlayBackgroundMusic();
         Spawn();
         UpdateHiScoreText();
         moveDirection = startMovingRight ? 1 : -1;
@@ -139,6 +145,17 @@ public class SpawnInvaderFormation : MonoBehaviour {
         if(!(Time.time >= nextMoveTime)) return;
         MoveAliensOneStep();
         ScheduleNextMove();
+    }
+
+    private void PlayBackgroundMusic() {
+        musicSource = GetComponent<AudioSource>();
+
+        musicSource.playOnAwake = false;
+        musicSource.loop = true;
+        musicSource.spatialBlend = 0f;
+        musicSource.clip = backgroundMusic;
+        musicSource.volume = backgroundMusicVolume;
+        musicSource.Play();
     }
     #endregion
 
