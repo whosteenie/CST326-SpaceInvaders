@@ -317,7 +317,7 @@ MonoBehaviour:
   playerStartPosition: {x: 0, y: -430}
   scoreText: {fileID: 1789706383}
   hiScoreText: {fileID: 725242714}
-  mainMenuSceneName: MainMenu
+  mainMenuSceneName: Credits
   returnToMenuDelay: 3
   shieldPrefab: {fileID: 4869398597454081473, guid: ae2d163bb4178974a880f8e3950847d4, type: 3}
   shieldCount: 4
