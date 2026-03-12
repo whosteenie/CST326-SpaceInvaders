@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using TMPro;
 
@@ -7,9 +6,6 @@ public class LoadGameSceneAfterDelay : MonoBehaviour
 {
     [SerializeField] private TMP_Text hiScoreText;
     [SerializeField] private string sceneName = "Game";
-    [SerializeField] private float delaySeconds = 3f;
-
-    private float elapsed;
     private bool hasLoaded;
 
     private void Start()
@@ -17,24 +13,15 @@ public class LoadGameSceneAfterDelay : MonoBehaviour
         UpdateHiScoreText();
     }
 
-    private void Update()
+    public void LoadScene()
     {
         if (hasLoaded)
         {
             return;
         }
 
-        elapsed += Time.deltaTime;
-        if(!(elapsed >= delaySeconds) && !WasClickPressedThisFrame()) return;
         hasLoaded = true;
         SceneManager.LoadScene(sceneName);
-    }
-
-    private static bool WasClickPressedThisFrame()
-    {
-        return (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-               || (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
-               || (Pen.current != null && Pen.current.tip.wasPressedThisFrame);
     }
 
     private void UpdateHiScoreText()
