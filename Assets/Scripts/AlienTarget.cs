@@ -51,6 +51,14 @@ public class AlienTarget : MonoBehaviour
 
         Killed?.Invoke(this);
 
+        enabled = false;
+
+        if (TryGetComponent<DeathSpriteOnDestroy>(out var deathSprite))
+        {
+            deathSprite.Play();
+            return;
+        }
+
         if (destroyDelay <= 0f)
         {
             Destroy(gameObject);

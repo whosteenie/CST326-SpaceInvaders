@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3870445445944036673}
   - component: {fileID: 6092543532405973761}
   - component: {fileID: 844073917791055868}
+  - component: {fileID: -5979612859464627022}
   m_Layer: 5
   m_Name: OCTOPUS
   m_TagString: Untagged
@@ -103,4 +104,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b9a581556f047d4782112105b612153, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AlienTarget
+  scoreValue: 10
   destroyDelay: 0
+  columnIndex: -1
+--- !u!114 &-5979612859464627022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7631773182369834498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 982cb168a5b4fc249a65359cfa7aedc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeathSpriteOnDestroy
+  targetImage: {fileID: 3870445445944036673}
+  deathSprite: {fileID: -1074475656, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
+  destroyDelay: 0.25

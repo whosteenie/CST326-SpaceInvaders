@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6679542700056823431}
   - component: {fileID: 3258215418001648372}
   - component: {fileID: 404786534623487300}
+  - component: {fileID: 2631550166053720463}
   m_Layer: 5
   m_Name: CRAB
   m_TagString: Untagged
@@ -91,6 +92,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AlienTarget
   scoreValue: 20
   destroyDelay: 0
+  columnIndex: -1
 --- !u!114 &404786534623487300
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105,3 +107,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AlienFrames
   frame0: {fileID: -1471848226, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
   frame1: {fileID: -1334691920, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
+--- !u!114 &2631550166053720463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7489320207082509969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 982cb168a5b4fc249a65359cfa7aedc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeathSpriteOnDestroy
+  targetImage: {fileID: 6679542700056823431}
+  deathSprite: {fileID: -1074475656, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
+  destroyDelay: 0.25

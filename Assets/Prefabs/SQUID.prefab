@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8063065633370166749}
   - component: {fileID: 7761103843143150581}
   - component: {fileID: 516128995441504273}
+  - component: {fileID: 5326119756258143511}
   m_Layer: 5
   m_Name: SQUID
   m_TagString: Untagged
@@ -105,3 +106,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AlienTarget
   scoreValue: 30
   destroyDelay: 0
+  columnIndex: -1
+--- !u!114 &5326119756258143511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9126041895241609623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 982cb168a5b4fc249a65359cfa7aedc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeathSpriteOnDestroy
+  targetImage: {fileID: 8063065633370166749}
+  deathSprite: {fileID: -1074475656, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
+  destroyDelay: 0.25

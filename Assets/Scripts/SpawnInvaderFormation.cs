@@ -387,7 +387,15 @@ public class SpawnInvaderFormation : MonoBehaviour {
         UpdateHiScoreText();
 
         if(PlayerController.Instance != null) {
-            Destroy(PlayerController.Instance.gameObject);
+            var player = PlayerController.Instance;
+            player.enabled = false;
+
+            if(player.TryGetComponent<DeathSpriteOnDestroy>(out var deathSprite)) {
+                deathSprite.Play();
+            }
+            else {
+                Destroy(player.gameObject);
+            }
         }
 
         StartCoroutine(ReturnToMainMenuAfterDelay());
