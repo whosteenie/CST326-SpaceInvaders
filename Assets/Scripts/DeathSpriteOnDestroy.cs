@@ -7,6 +7,8 @@ public class DeathSpriteOnDestroy : MonoBehaviour
     [SerializeField] private Image targetImage;
     [SerializeField] private Sprite deathSprite;
     [SerializeField] private float destroyDelay = 0.25f;
+    [SerializeField] private AudioClip deathSound;
+    [SerializeField] [Range(0f, 1f)] private float deathSoundVolume = 1f;
 
     private bool hasPlayed;
 
@@ -31,6 +33,11 @@ public class DeathSpriteOnDestroy : MonoBehaviour
         }
 
         hasPlayed = true;
+
+        if (deathSound != null)
+        {
+            AudioSource.PlayClipAtPoint(deathSound, Vector3.zero, deathSoundVolume);
+        }
 
         if (targetImage != null && deathSprite != null)
         {

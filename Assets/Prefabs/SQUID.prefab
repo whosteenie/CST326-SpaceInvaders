@@ -122,3 +122,5 @@ MonoBehaviour:
   targetImage: {fileID: 8063065633370166749}
   deathSprite: {fileID: -1074475656, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
   destroyDelay: 0.25
+  deathSound: {fileID: 8300000, guid: 94e7a397c7c6c1b47921c6d85c0e4d0b, type: 3}
+  deathSoundVolume: 1

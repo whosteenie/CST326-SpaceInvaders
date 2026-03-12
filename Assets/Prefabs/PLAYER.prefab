@@ -96,6 +96,8 @@ MonoBehaviour:
   playerBulletPrefab: {fileID: 6307964042558587045, guid: d03e1d6403682764191dbd1ac287106e, type: 3}
   bulletSpawnOffset: {x: 0, y: 50}
   fireCooldown: 0.25
+  shotSound: {fileID: 8300000, guid: ec144edbd167e6e47a54b9e1aa418c79, type: 3}
+  shotSoundVolume: 1
   scoreText: {fileID: 0}
 --- !u!114 &8545200338392043060
 MonoBehaviour:
@@ -142,3 +144,5 @@ MonoBehaviour:
   targetImage: {fileID: 518427945593154648}
   deathSprite: {fileID: -1002323894, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
   destroyDelay: 0.25
+  deathSound: {fileID: 8300000, guid: 65e2f8bc2746f1248b508f78dc69b715, type: 3}
+  deathSoundVolume: 1

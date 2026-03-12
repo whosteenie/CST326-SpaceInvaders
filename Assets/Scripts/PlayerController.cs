@@ -18,6 +18,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject playerBulletPrefab;
     [SerializeField] private Vector2 bulletSpawnOffset = new Vector2(0f, 50f);
     [SerializeField] private float fireCooldown = 0.25f;
+    [SerializeField] private AudioClip shotSound;
+    [SerializeField] [Range(0f, 1f)] private float shotSoundVolume = 1f;
 
     [Header("Score")]
     [SerializeField] private TMP_Text scoreText;
@@ -97,6 +99,11 @@ public class PlayerController : MonoBehaviour
         }
 
         nextFireTime = Time.time + fireCooldown;
+
+        if (shotSound != null)
+        {
+            AudioSource.PlayClipAtPoint(shotSound, Vector3.zero, shotSoundVolume);
+        }
 
         var parent = transform.parent;
         var bullet = Instantiate(playerBulletPrefab, parent);
