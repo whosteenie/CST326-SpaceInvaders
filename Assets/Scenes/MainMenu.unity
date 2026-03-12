@@ -1422,6 +1422,7 @@ GameObject:
   - component: {fileID: 893909725}
   - component: {fileID: 893909727}
   - component: {fileID: 893909726}
+  - component: {fileID: 893909728}
   m_Layer: 5
   m_Name: OCTOPUS
   m_TagString: Untagged
@@ -1487,6 +1488,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 893909724}
   m_CullTransparentMesh: 1
+--- !u!114 &893909728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 893909724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c450d033b99d4247a920c4af8f0f2d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UiSpriteFlipAnimator
+  targetImage: {fileID: 893909726}
+  sprite1: {fileID: -1710568333, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
+  sprite2: {fileID: 1860050287, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
+  frameDuration: 0.5
 --- !u!1 &1161624602
 GameObject:
   m_ObjectHideFlags: 0
@@ -1805,6 +1822,7 @@ GameObject:
   - component: {fileID: 1248076324}
   - component: {fileID: 1248076326}
   - component: {fileID: 1248076325}
+  - component: {fileID: 1248076327}
   m_Layer: 5
   m_Name: CRAB
   m_TagString: Untagged
@@ -1870,6 +1888,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1248076323}
   m_CullTransparentMesh: 1
+--- !u!114 &1248076327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1248076323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c450d033b99d4247a920c4af8f0f2d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UiSpriteFlipAnimator
+  targetImage: {fileID: 1248076325}
+  sprite1: {fileID: -1471848226, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
+  sprite2: {fileID: -1334691920, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
+  frameDuration: 0.5
 --- !u!1 &1426165071
 GameObject:
   m_ObjectHideFlags: 0
@@ -2104,6 +2138,7 @@ GameObject:
   - component: {fileID: 1729118679}
   - component: {fileID: 1729118681}
   - component: {fileID: 1729118680}
+  - component: {fileID: 1729118682}
   m_Layer: 5
   m_Name: SQUID
   m_TagString: Untagged
@@ -2169,6 +2204,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1729118678}
   m_CullTransparentMesh: 1
+--- !u!114 &1729118682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1729118678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c450d033b99d4247a920c4af8f0f2d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UiSpriteFlipAnimator
+  targetImage: {fileID: 1729118680}
+  sprite1: {fileID: -832749870, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
+  sprite2: {fileID: -863642520, guid: 13ffafb34eae37a4bb5bb252b60fe7db, type: 3}
+  frameDuration: 0.5
 --- !u!1 &1808525165
 GameObject:
   m_ObjectHideFlags: 0
